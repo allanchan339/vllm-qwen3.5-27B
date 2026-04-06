@@ -22,7 +22,7 @@ export OMP_NUM_THREADS=4
 export NCCL_P2P_DISABLE=1
 export NCCL_IB_DISABLE=1
 export NCCL_ALGO=Ring
-
+export MODEL_NAME="cpatonn/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled-v2-AWQ-BF16-INT4"
 # --------------------------
 # FIX: Clean Stale FlashInfer Cache
 # --------------------------
@@ -32,12 +32,11 @@ rm -rf ~/.cache/flashinfer
 source /home/cychan/vllm/.venv/bin/activate
 
 # Start vLLM with reduced swap space
-/home/cychan/vllm/.venv/bin/vllm serve Intel/Qwen3.5-27B-int4-AutoRound \
+/home/cychan/vllm/.venv/bin/vllm serve $MODEL_NAME \
   --served-model-name vllm/Qwen3.5-27B \
-  --dtype bfloat16 \
   --trust-remote-code \
   --tensor-parallel-size 2 \
-  --max-model-len 220000 \
+  --max-model-len 110000 \
   --gpu-memory-utilization 0.8 \
   --enable-auto-tool-choice \
   --enable-chunked-prefill \
