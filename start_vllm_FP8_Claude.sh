@@ -22,34 +22,38 @@ export OMP_NUM_THREADS=4
 export NCCL_P2P_DISABLE=1
 export NCCL_IB_DISABLE=1
 export NCCL_ALGO=Ring
-
 # --------------------------
 # FIX: Clean Stale FlashInfer Cache
 # --------------------------
 rm -rf ~/.cache/flashinfer
 
 # Activate virtual environment
-source /home/cychan/vllm/.venv/bin/activate
+source /home/cychan/vLLM/.venv/bin/activate
 
+# Enable memory profiler to estimate CUDA graphs v0.19 functionality
+export VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=1
+export MODEL_NAME="mconcat/Qwopus3.5-27B-v3-FP8-Dynamic"
 # Start vLLM with reduced swap space
-/home/cychan/vllm/.venv/bin/vllm serve QuantTrio/Qwen3.5-27B-AWQ \
+vllm serve $MODEL_NAME \
   --served-model-name vllm/Qwen3.5-27B \
   --trust-remote-code \
   --tensor-parallel-size 2 \
-  --max-model-len 220000 \
-  --gpu-memory-utilization 0.8 \
+  --max-model-len 219520 \
+  --gpu-memory-utilization 0.92 \
   --enable-auto-tool-choice \
   --enable-chunked-prefill \
   --enable-prefix-caching \
   --max-num-batched-tokens 4096 \
-  --max-num-seqs 8 \
-    --kv-cache-dtype fp8 \
-  --tool-call-parser qwen3_coder \
+  --max-num-seqs 4 \
+  --kv-cache-dtype fp8 \
+  --tool-call-parser hermes \
   --reasoning-parser qwen3 \
-    --attention-backend FLASHINFER \
   --no-use-tqdm-on-load \
   --host 0.0.0.0 \
-  --port 8000
+  --port 8000 \
+  --language-model-only 
+
 #  --speculative-config '{"method":"qwen3_next_mtp","num_speculative_tokens":5}' \
 # current hardware setting is not allowed to have 80BA3B model as speculator
 
+  # --attention-backend FLASHINFER \

@@ -1,30 +1,29 @@
 from openai import OpenAI
 
-client = OpenAI(
-    base_url="http://localhost:8000/v1",
-    api_key="dummy"
-)
+client = OpenAI(base_url="http://localhost:8000/v1", api_key="dummy")
+
 
 def chat(message, max_tokens=None):
     """与 Qwen3.5 对话，自动处理 reasoning"""
     kwargs = {
-        "model": "QuantTrio/Qwen3.5-27B-AWQ",
+        "model": "vllm/Qwen3.5-27B",
         "messages": [{"role": "user", "content": message}],
         "temperature": 0.6,
     }
     if max_tokens:
         kwargs["max_tokens"] = max_tokens
-    
+
     response = client.chat.completions.create(**kwargs)
     msg = response.choices[0].message
-    
+
     result = {
         "content": msg.content,
-        "reasoning": getattr(msg, 'reasoning', None),
+        "reasoning": getattr(msg, "reasoning", None),
         "finish_reason": response.choices[0].finish_reason,
-        "usage": response.usage
+        "usage": response.usage,
     }
     return result
+
 
 # 测试 1：不限制长度（默认最大）
 print("=== Test 1: No max_tokens limit ===")
@@ -37,27 +36,27 @@ print(f"Total tokens: {r1['usage'].total_tokens}")
 print("\n=== Test 2: Math reasoning ===")
 r2 = chat("Calculate 125 * 8 step by step.")
 print(f"Answer: {r2['content']}")
-if r2['reasoning']:
+if r2["reasoning"]:
     print(f"Reasoning preview: {r2['reasoning'][:300]}...")
 
 # 测试 3：Tool calling
 print("\n=== Test 3: Tool calling ===")
 response = client.chat.completions.create(
-    model="QuantTrio/Qwen3.5-27B-AWQ",
+    model="vllm/Qwen3.5-27B",
     messages=[{"role": "user", "content": "What is 25 squared?"}],
-    tools=[{
-        "type": "function",
-        "function": {
-            "name": "calculator",
-            "description": "Calculate math expression",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "expression": {"type": "string"}
+    tools=[
+        {
+            "type": "function",
+            "function": {
+                "name": "calculator",
+                "description": "Calculate math expression",
+                "parameters": {
+                    "type": "object",
+                    "properties": {"expression": {"type": "string"}},
+                    "required": ["expression"],
                 },
-                "required": ["expression"]
-            }
+            },
         }
-    }]
+    ],
 )
 print(f"Tool calls: {response.choices[0].message.tool_calls}")

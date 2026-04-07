@@ -1,4 +1,6 @@
 #!/bin/bash
+# This model will die in tool calling as it will call the tool without </thinking> tag.
+# This is some disiliation from the original model issue. 397B or 122B has no such problem. 
 
 # --------------------------
 # CUDA PATH SETTINGS
