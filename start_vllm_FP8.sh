@@ -32,7 +32,7 @@ rm -rf ~/.cache/flashinfer
 source /home/cychan/vLLM/.venv/bin/activate
 
 # Enable memory profiler to estimate CUDA graphs v0.19 functionality
-export VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=0
+export VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=1
 
 # Start vLLM with reduced swap space
 vllm serve $MODEL_NAME \
@@ -41,7 +41,7 @@ vllm serve $MODEL_NAME \
   --trust-remote-code \
   --tensor-parallel-size 2 \
   --max-model-len 262144 \
-  --gpu-memory-utilization 0.85 \
+  --gpu-memory-utilization 0.92 \
   --enable-auto-tool-choice \
   --enable-chunked-prefill \
   --enable-prefix-caching \
