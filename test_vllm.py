@@ -39,24 +39,34 @@ print(f"Answer: {r2['content']}")
 if r2["reasoning"]:
     print(f"Reasoning preview: {r2['reasoning'][:300]}...")
 
-# 测试 3：Tool calling
+# 测试 3：Tool calling (with error handling)
 print("\n=== Test 3: Tool calling ===")
-response = client.chat.completions.create(
-    model="vllm/Qwen3.5-27B",
-    messages=[{"role": "user", "content": "What is 25 squared?"}],
-    tools=[
-        {
-            "type": "function",
-            "function": {
-                "name": "calculator",
-                "description": "Calculate math expression",
-                "parameters": {
-                    "type": "object",
-                    "properties": {"expression": {"type": "string"}},
-                    "required": ["expression"],
+try:
+    response = client.chat.completions.create(
+        model="vllm/Qwen3.5-27B",
+        messages=[{"role": "user", "content": "What is 25 squared?"}],
+        tools=[
+            {
+                "type": "function",
+                "function": {
+                    "name": "calculator",
+                    "description": "Calculate math expression",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {"expression": {"type": "string"}},
+                        "required": ["expression"],
+                    },
                 },
-            },
-        }
-    ],
-)
-print(f"Tool calls: {response.choices[0].message.tool_calls}")
+            }
+        ],
+    )
+    tool_calls = response.choices[0].message.tool_calls
+    print(f"Tool calls: {tool_calls}")
+    if tool_calls:
+        print(f"Function: {tool_calls[0].function.name}")
+        print(f"Arguments: {tool_calls[0].function.arguments}")
+except Exception as e:
+    print(f"Tool calling failed (parser/format mismatch): {type(e).__name__}: {e}")
+    print(
+        "Note: Ensure vLLM is launched with --enable-auto-tool-choice and correct --tool-call-parser"
+    )
