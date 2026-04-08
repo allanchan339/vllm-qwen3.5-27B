@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# THIS IS THE ONLY CONFIG THAT IS WORKING FOR NOW.
 # --------------------------
 # CUDA PATH SETTINGS
 # --------------------------
