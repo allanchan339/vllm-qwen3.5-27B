@@ -13,8 +13,9 @@ export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 export CUDA_DEVICE_ORDER=PCI_BUS_ID  # Your original mixed-GPU safeguard
 #export CUDA_VISIBLE_DEVICES=0,1        # Explicit device selection
 export NCCL_CUMEM_ENABLE=0             # Fixes WSL2 NCCL issues
-#export VLLM_ENABLE_CUDAGRAPH_GC=1      # Prevents VRAM leaks from CUDA graphs
-#export VLLM_USE_FLASHINFER_SAMPLER=1   # Faster sampling (great for speculative decoding)
+export VLLM_ENABLE_CUDAGRAPH_GC=1      # Prevents VRAM leaks from CUDA graphs
+export VLLM_USE_FLASHINFER_SAMPLER=1   # Faster sampling (great for speculative decoding)
+export VLLM_ATTENTION_BACKEND=FLASHINFER
 
 export OMP_NUM_THREADS=4
 
@@ -43,7 +44,7 @@ vllm serve $MODEL_NAME \
   --enable-auto-tool-choice \
   --enable-chunked-prefill \
   --enable-prefix-caching \
-  --max-num-batched-tokens 4096 \
+  --max-num-batched-tokens 12288 \
   --max-num-seqs 4 \
   --kv-cache-dtype fp8 \
   --tool-call-parser hermes \
