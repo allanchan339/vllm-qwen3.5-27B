@@ -71,6 +71,11 @@ The solution 3 is more complicated, it rely on post-training to fix this issue. 
 
 # Conclusion
 1. Choose distilled model Qwopus3.5-27B-v3 instead of official model Qwen3.5-27B. This model is more stable over long context length, reasoning, and tool calling.
+1.1 Given the AWQ quantization is not lossless, we need to pick a model that is as less plexitiy as possible. Some user reported QuantTrio/Qwopus3.5-27B-v3-AWQ is stable with tool calling ability. See https://forums.developer.nvidia.com/t/success-with-quanttrio-qwen3-5-27b-claude-4-6-opus-reasoning-distilled-v2-awq/365416.
+
+Another solution is monocat, it is reported to have 17/17 tool calling ability, see https://huggingface.co/Jackrong/Qwen3.5-27B-Claude-4.6-Opus-Reasoning-Distilled for more details. 
+
+
 
 2. Use hermes as tool calling parser instead of qwen3-coder or qwen3-xml. After distillation, the model should align more to teacher model's behavior (which use hermes as tool calling parser).
 
