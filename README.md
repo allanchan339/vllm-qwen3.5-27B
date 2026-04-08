@@ -23,7 +23,7 @@ The vllm v0.19.0 is partial support for transformers 5. Due to some bugs, the vL
 
 However, new model e.g. Qwen3.5-27B require new RoPE implementation, making transformers 5.3 or above is a must. 
 
-You have to manually install transformers 5.3 or above, after installed vllm v0.19.0. e.g. 
+You have to manually install transformers 5.5 or above, after installed vllm v0.19.0. e.g. 
 ```
 uv pip install -U transformers
 ```
@@ -66,6 +66,15 @@ The solution 1 is to use qwen3-xml instead of qwen3-coder to ensure the tool cal
 
 The solution 2 is to replace the chat template to ensure the tool calling is always xml format that avoid failed tool calling as <stop>, causing the model to stop generating result when it is not supposed to. However, this fix is not perfect either, as the model may still generate incorrect tool call result.
 
+## Workaround: Disable Thinking Mode (Official Qwen Only)
+For **official Qwen3.5-27B**, there's one more workaround: **disable reasoning/thinking mode** when calling the API.
+
+- **Effect**: Prevents the model from inserting `<think>` blocks, forcing it to output tool calls directly
+- **Result**: Tool calling becomes stable (no premature `</thinking>` cuts)
+- **Cost**: **Significant reasoning degradation** - The model loses Chain-of-Thought benefits, performing much worse on complex reasoning, math, or multi-step tool orchestration
+
+This workaround acknowledges the root issue: the distillation target had unstable COP (generate tool calls mid-thought without closing). Removing thinking entirely fixes tool calling but sacrifices the reasoning capability entirely.
+
 # Pain 4: Small model stability over long context length
 The solution 3 is more complicated, it rely on post-training to fix this issue. Luckily, we can find huggingface model that is distilled on Claude 4.6 Opus Reasoning model, by learning teacher model's CoT and reasoning result. Model can be more stable over long context length, reasoning, and tool calling. Model can be found in https://huggingface.co/Jackrong/Qwopus3.5-27B-v3
 
@@ -81,4 +90,4 @@ Another solution is monocat, it is reported to have 17/17 tool calling ability, 
 
 4. Use PP mode instead of TP mode in mixed GPU setup. This is to ensure the model accuracy is not affected by the matrix multiplication issue.
 
-5. Use vllm v0.19.0 with transformers v5.5.
+5. Use vllm v0.19.0 with transformers v5.5 or above.

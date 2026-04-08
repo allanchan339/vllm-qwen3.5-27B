@@ -10,13 +10,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/.venv/bin/activate"
 
 # Configuration
-MODEL="QuantTrio/Qwen3.5-27B-AWQ"
+MODEL_NAME="QuantTrio/Qwopus3.5-27B-v3-AWQ"
+SERVED_MODEL_NAME="vllm/Qwen3.5-27B"
 BASE_URL="http://localhost:8000"
 ENDPOINT="/v1/chat/completions"
-INPUT_LEN=204800
+INPUT_LEN=2048
 OUTPUT_LEN=512
-NUM_PROMPTS=10
-REQUEST_RATE=4
+NUM_PROMPTS=50
+REQUEST_RATE=1
 
 # Check if vLLM is installed
 if ! command -v vllm &> /dev/null; then
@@ -37,7 +38,8 @@ echo "✅ Server is running"
 echo ""
 echo "🚀 Starting vLLM Benchmark..."
 echo "━━━━━━━━ Parameters ="
-echo "  Model:          $MODEL"
+echo "  HF Model:       $MODEL_NAME"
+echo "  API Model Name: $SERVED_MODEL_NAME"
 echo "  Endpoint:       $ENDPOINT"
 echo "  Input tokens:   $INPUT_LEN"
 echo "  Output tokens:  $OUTPUT_LEN"
@@ -49,12 +51,14 @@ echo ""
 vllm bench serve \
     --backend openai-chat \
     --endpoint "$ENDPOINT" \
-    --model "$MODEL" \
+    --model "$MODEL_NAME" \
+    --served-model-name "$SERVED_MODEL_NAME" \
+    --trust-remote-code \
     --dataset-name random \
     --random-input-len $INPUT_LEN \
     --random-output-len $OUTPUT_LEN \
     --num-prompts $NUM_PROMPTS \
-    --request-rate $REQUEST_RATE
+  
 
 echo ""
 echo "✅ Benchmark completed!"
