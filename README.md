@@ -4,7 +4,20 @@
 
 **This configuration now powers a production knowledge graph extraction system** - see [qwen_own_project](https://github.com/allanchan339/qwen_own_project) for the complete working example.
 
-**Results**: 138.2k tokens over 1h 9m of continuous agentic work with stable tool calling and reasoning.
+### Test Setup & Results
+
+The configuration was validated through a comprehensive stability test documented in the [Knowledge Platform README](https://github.com/allanchan339/qwen_own_project/blob/main/README.md):
+
+- **Test Duration**: 1h 9m continuous agentic session
+- **Token Usage**: 138.2k tokens
+- **Workload**: Full-stack application development (FastAPI backend + React frontend)
+- **Tool Calling**: Stable throughout session with XML parser
+- **Reasoning**: M2.5-style interleaved thinking maintained coherence
+- **Result**: Successfully built a production-ready knowledge graph platform
+
+**Key Achievement**: The LLM autonomously built the entire platform in 18 minutes of uninterrupted work, demonstrating stable long-context reasoning and reliable tool calling on mixed GPU hardware.
+
+See [qwen_own_project README](https://github.com/allanchan339/qwen_own_project/blob/main/README.md) for complete test methodology and results.
 
 ---
 
