@@ -208,7 +208,14 @@ Models like `QuantTrio/Qwopus3.5-27B-v3-AWQ` are SFT-distilled from Claude 4.6 O
 
 ---
 
-## Complete Working Configuration
+### Problem 5: Tool Call Parser Selection (`qwen3_xml` vs `qwen3_coder`)
+
+**Recommendation**: Use `--tool-call-parser qwen3_xml` (NOT `qwen3_coder`)
+
+#### Why `qwen3_xml` is More Stable
+
+**1. Robust XML Parsing vs Fragile Regex**
+- **`qwen3_coder`**: Uses regex-based string extraction (`r"
 
 ### Environment Variables
 
