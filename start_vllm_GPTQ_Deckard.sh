@@ -1,8 +1,5 @@
 #!/bin/bash
-# TP mode - pending stability testing (tool calling may have issues with </thinking> tag)
-# This is some disiliation from the original model issue. 397B or 122B has no such problem.
-# Requires custom jinja template: @qwen3.5-enhanced.jinja (renamed from deckard) 
-
+# 40B model - too large to fit in available VRAM
 # --------------------------
 # CUDA PATH SETTINGS
 # --------------------------
@@ -14,10 +11,9 @@ export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 # Safe, Speed-Focused Env Vars
 # ------------------------------
 export CUDA_DEVICE_ORDER=PCI_BUS_ID  # Your original mixed-GPU safeguard
-export CUDA_VISIBLE_DEVICES=0,1        # Explicit device selection
+#export CUDA_VISIBLE_DEVICES=0,1        # Explicit device selection
 export NCCL_CUMEM_ENABLE=0             # Fixes WSL2 NCCL issues
 export VLLM_ENABLE_CUDAGRAPH_GC=1      # Prevents VRAM leaks from CUDA graphs
-export VLLM_USE_FLASHINFER_SAMPLER=1   # Faster sampling (great for speculative decoding)
 
 export OMP_NUM_THREADS=4
 
@@ -25,7 +21,6 @@ export OMP_NUM_THREADS=4
 export NCCL_P2P_DISABLE=1
 export NCCL_IB_DISABLE=1
 export NCCL_ALGO=Ring
-export MODEL_NAME="Qwen/Qwen3.5-27B-FP8"
 # --------------------------
 # FIX: Clean Stale FlashInfer Cache
 # --------------------------
@@ -36,30 +31,26 @@ source /home/cychan/vLLM/.venv/bin/activate
 
 # Enable memory profiler to estimate CUDA graphs v0.19 functionality
 export VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=1
-export VLLM_TEST_FORCE_FP8_MARLIN=1
+export MODEL_NAME="raydelossantos/Qwen3.5-40B-Claude-4.6-Opus-Deckard-Heretic-GPTQ-Int4"
+export VLLM_USE_FLASHINFER_SAMPLER=1   # Faster sampling (great for speculative decoding)
 # Start vLLM with reduced swap space
 vllm serve $MODEL_NAME \
   --served-model-name vllm/Qwen3.5-27B \
-  --chat-template qwen3.5-enhanced.jinja \
   --attention-backend FLASHINFER \
   --trust-remote-code \
-  --tensor-parallel-size 2 \
-  --max-model-len 219520 \
-  --gpu-memory-utilization 0.92 \
+  --pipeline-parallel-size 2 \
+  --max-model-len 90000 \
+  --gpu-memory-utilization 0.90 \
   --enable-auto-tool-choice \
   --enable-chunked-prefill \
   --enable-prefix-caching \
-  --max-num-batched-tokens 4096 \
-  --max-num-seqs 4 \
+  --max-num-batched-tokens 12288 \
+  --max-num-seqs 6 \
   --kv-cache-dtype fp8 \
-  --tool-call-parser qwen3_xml \
+  --tool-call-parser hermes \
   --reasoning-parser qwen3 \
   --no-use-tqdm-on-load \
   --host 0.0.0.0 \
   --port 8000 \
   --language-model-only 
 
-#  --speculative-config '{"method":"qwen3_next_mtp","num_speculative_tokens":5}' \
-# current hardware setting is not allowed to have 80BA3B model as speculator
-
-  # --attention-backend FLASHINFER \

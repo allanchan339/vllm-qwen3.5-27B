@@ -39,6 +39,7 @@ export VLLM_TEST_FORCE_FP8_MARLIN=1
 # Start vLLM with reduced swap space
 vllm serve $MODEL_NAME \
   --served-model-name vllm/Qwen3.5-27B \
+  --chat-template qwen3.5-barubary-attuned-chat-template_2.jinja \
   --dtype bfloat16 \
   --trust-remote-code \
   --tensor-parallel-size 2 \
