@@ -168,10 +168,14 @@ export NCCL_ALGO=Ring        # Stable algorithm
 - **Cons**: Higher perplexity than FP8/BF16 (some accuracy loss), INT4 not lossless
 - **Only use if**: You must save VRAM for GUI/other tasks AND accept accuracy tradeoffs
 
-**AWQ Quantization (NOT RECOMMENDED for Long Context)**:
-- **Pros**: Uniform 0-1 range, consistent across different GPU architectures
-- **Cons**: SFT-distilled variants (Qwopus3.5) have format drift issues after 65K tokens
-- **Avoid**: Qwopus3.5 series for long-context work (>65K tokens)
+**⚠️ AVOID: Qwopus3.5 Series (SFT-Distilled from Claude)**:
+- **Issue**: SFT shifted tool calling from `qwen3_xml` → `hermes` (JSON)
+- **Symptom**: Works fine for first ~65K tokens, then **mixes XML and JSON formats**
+- **Root cause**: SFT doesn't maintain format consistency like base model fine-tuning
+- **Affected models**: All `QuantTrio/Qwopus3.5-*`, `Jackrong/Qwen3.5-*-Claude-*`, etc.
+- **Recommendation**: Do NOT use for long-context work (>65K tokens)
+
+**Note**: AWQ quantization itself is fine. The issue is specifically with SFT-distilled variants that changed the output format.
 
 **⚠️ CRITICAL WARNING: Avoid Qwopus3.5 Series for Long Context**
 
