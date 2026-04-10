@@ -100,7 +100,7 @@
                 {{- '<tool_call>\n' -}}
                 {{- '{"name": "' + tc.name + '", "arguments": ' -}}
                 {%- if tc.arguments is defined and tc.arguments is not none -%}
-                    {{- tc.arguments | tojson -}}
+                    {{- tc.arguments -}}
                 {%- else -%}
                     {{- '{}' -}}
                 {%- endif -%}
