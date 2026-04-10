@@ -1,11 +1,14 @@
 #!/bin/bash
-# ⚠️ DEPRECATED: AutoRound quantization - tool calling instability
+# AutoRound INT4 Quantization - For Limited VRAM (<48GB Available)
 #
-# WARNING: This model has distillation issues - calls tools without </thinking> tag
-# See README.md "Root Cause: Jinja Template Instability"
-# This is the issue that qwen3.5-enhanced.jinja was designed to fix
+# ⚠️ TRADEOFFS:
+# - ✅ Stable tool calling WITH qwen3.5-enhanced.jinja template
+# - ✅ Saves ~4GB VRAM vs FP8 (good for GUI/other tasks)
+# - ⚠️ Higher perplexity than BF16/FP8 (some accuracy loss)
+# - ⚠️ INT4 quantization not lossless (vs FP8 near-lossless)
 #
-# For production use: ./start_vllm_FP8.sh (official Qwen3.5-27B-FP8 + custom template)
+# Use this if: You need to save VRAM and accept accuracy tradeoffs
+# For best quality: ./start_vllm_FP8.sh (official Qwen3.5-27B-FP8)
 # --------------------------
 # CUDA PATH SETTINGS
 # --------------------------
@@ -36,7 +39,7 @@ export VLLM_TEST_FORCE_FP8_MARLIN=1
 # Start vLLM with reduced swap space
 vllm serve $MODEL_NAME \
   --served-model-name vllm/Qwen3.5-27B \
-  --chat-template qwen3.5-barubary-attuned-chat-template_2.jinja \
+  --chat-template qwen3.5-enhanced.jinja \
   --dtype bfloat16 \
   --trust-remote-code \
   --tensor-parallel-size 2 \
@@ -48,7 +51,7 @@ vllm serve $MODEL_NAME \
   --max-num-batched-tokens 4096 \
   --max-num-seqs 4 \
   --kv-cache-dtype fp8 \
-  --tool-call-parser qwen3_coder \
+  --tool-call-parser qwen3_xml \
   --reasoning-parser qwen3 \
   --no-use-tqdm-on-load \
   --host 0.0.0.0 \

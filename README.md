@@ -63,8 +63,13 @@ This uses:
 ./start_vllm_autoround.sh
 ```
 
-**Warning**: AutoRound has known issues with tool calling (see Problem 1). This is why we use FP8 + custom Jinja template as the primary solution.
+**Tradeoffs**:
+- ✅ Stable tool calling with `qwen3.5-enhanced.jinja` template
+- ✅ Saves ~4GB VRAM vs FP8 (good for GUI/other tasks)
+- ⚠️ Higher perplexity than BF16/FP8 (some accuracy loss)
+- ⚠️ INT4 quantization not lossless (vs FP8 near-lossless)
 
+**Use this if**: You must save VRAM and accept accuracy tradeoffs
 **Do NOT use**: Qwopus3.5-AWQ series (format drift after 65K tokens, see Problem 3)
 
 ---
@@ -154,14 +159,19 @@ export NCCL_ALGO=Ring        # Stable algorithm
 ### Problem 3: Quantization Tradeoffs
 
 **FP8 Quantization (RECOMMENDED)**:
-- **Pros**: Minimal accuracy loss vs FP16, native support on RTX 4090
+- **Pros**: Near-lossless accuracy vs FP16/BF16, native support on RTX 4090
 - **Cons**: RTX 3090 falls back to W8A16, potential precision drift (fixed with `VLLM_TEST_FORCE_FP8_MARLIN=1`)
-- **Best for**: 48GB VRAM setups needing maximum context length (219k)
+- **Best for**: 48GB VRAM setups needing maximum context length (219k) + best accuracy
+
+**AutoRound INT4 (OPTIONAL for Limited VRAM)**:
+- **Pros**: Saves ~4GB VRAM vs FP8, stable tool calling WITH `qwen3.5-enhanced.jinja`
+- **Cons**: Higher perplexity than FP8/BF16 (some accuracy loss), INT4 not lossless
+- **Only use if**: You must save VRAM for GUI/other tasks AND accept accuracy tradeoffs
 
 **AWQ Quantization (NOT RECOMMENDED for Long Context)**:
-- **Pros**: Uniform 0-1 range, consistent across different GPU architectures, saves ~4GB VRAM
-- **Cons**: SFT-distilled variants (Qwopus3.5) have format drift issues
-- **Only use if**: You need to save VRAM for GUI/other tasks AND accept <65K context limit
+- **Pros**: Uniform 0-1 range, consistent across different GPU architectures
+- **Cons**: SFT-distilled variants (Qwopus3.5) have format drift issues after 65K tokens
+- **Avoid**: Qwopus3.5 series for long-context work (>65K tokens)
 
 **⚠️ CRITICAL WARNING: Avoid Qwopus3.5 Series for Long Context**
 
