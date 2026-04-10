@@ -40,7 +40,9 @@ See [qwen_own_project README](https://github.com/allanchan339/qwen_own_project/b
 
 ## Quick Start (Working Configuration)
 
-### For FP8 Quantization (Recommended for 48GB VRAM)
+### Recommended: FP8 Quantization (48GB VRAM)
+
+**For users with full 48GB VRAM available** (no GUI, no other GPU tasks):
 
 ```bash
 ./start_vllm_FP8.sh
@@ -51,24 +53,31 @@ This uses:
 - **FP8 KV Cache** - reduces memory overhead
 - **Custom Jinja template** - stable tool calling with reasoning
 - **FlashInfer backend** - optimized attention kernels
+- **219k context length** - maximum supported
 
-### For AWQ Quantization (Alternative)
+### For Limited VRAM (<48GB Available)
+
+**If you need VRAM for GUI or other tasks** (~44GB available):
 
 ```bash
-./start_vllm_AWQ_Claude_TP.sh
+./start_vllm_autoround.sh
 ```
 
-See "Quantization Comparison" below for tradeoffs.
+**Warning**: AutoRound has known issues with tool calling (see Problem 1). This is why we use FP8 + custom Jinja template as the primary solution.
+
+**Do NOT use**: Qwopus3.5-AWQ series (format drift after 65K tokens, see Problem 3)
 
 ---
 
-## Root Cause: Jinja Template Instability (CRITICAL)
+## Problems Solved (in Priority Order)
 
-**This is the PRIMARY issue that must be fixed first.**
+### Problem 1: Jinja Template Instability (CRITICAL - MUST FIX FIRST)
 
-### The Problem
+**The PRIMARY issue that breaks Qwen3.5-27B but not larger models (122B+).**
 
-The official `qwen3.5_official.jinja` template has edge cases that cause instability in Qwen3.5-27B but NOT in larger models (122B+):
+#### The Problem
+
+The official `qwen3.5_official.jinja` template has edge cases that cause instability:
 
 1. **Tool calling mid-thought**: Model generates `</think>` tags without properly closing `<think>` blocks
 2. **Premature stops**: XML tool calls trigger `<stop>` tokens incorrectly
@@ -79,7 +88,7 @@ The official `qwen3.5_official.jinja` template has edge cases that cause instabi
 - Edge cases in template logic that larger models handle gracefully
 - Distillation artifacts from training data
 
-### The Solution: Custom Template
+#### The Solution: Custom Template
 
 Use `qwen3.5-enhanced.jinja` which implements M2.5-style interleaved thinking:
 
@@ -102,9 +111,7 @@ Without this flag, the model will use the default template and exhibit instabili
 
 ---
 
-## Other Problems Solved
-
-### Problem 1: Version Compatibility
+### Problem 2: Version Compatibility
 
 **Issue**: vLLM 0.19.0 partially supports Transformers 5, but defaults to 4.49. Qwen3.5-27B requires Transformers 5.3+ for new RoPE implementation.
 
@@ -115,9 +122,7 @@ uv pip install -U transformers  # Upgrade to 5.5+
 
 ---
 
-### Problem 2: Mixed GPU Precision Drift (Secondary Issue)
-
-**Note**: This was initially suspected as the root cause, but the Jinja template is PRIMARY. NCCL tuning + FP8 Marlin force is still recommended for optimal stability.
+### Problem 2: Mixed GPU Precision Drift (IMPORTANT for Mixed GPU)
 
 **The Issue**: Tensor Parallelism (TP mode) splits matrix multiplication across GPUs. Different compute capabilities (SM80 vs SM89) use different FP8 implementations.
 
@@ -148,19 +153,19 @@ export NCCL_ALGO=Ring        # Stable algorithm
 
 ### Problem 3: Quantization Tradeoffs
 
-**FP8 Quantization**:
+**FP8 Quantization (RECOMMENDED)**:
 - **Pros**: Minimal accuracy loss vs FP16, native support on RTX 4090
-- **Cons**: RTX 3090 falls back to W8A16, potential precision drift
-- **Best for**: 48GB VRAM setups needing maximum context length
+- **Cons**: RTX 3090 falls back to W8A16, potential precision drift (fixed with `VLLM_TEST_FORCE_FP8_MARLIN=1`)
+- **Best for**: 48GB VRAM setups needing maximum context length (219k)
 
-**AWQ Quantization**:
-- **Pros**: Uniform 0-1 range, consistent across different GPU architectures
-- **Cons**: Higher precision requirements, slightly more VRAM usage
-- **Best for**: Mixed GPU setups prioritizing stability over context length
+**AWQ Quantization (NOT RECOMMENDED for Long Context)**:
+- **Pros**: Uniform 0-1 range, consistent across different GPU architectures, saves ~4GB VRAM
+- **Cons**: SFT-distilled variants (Qwopus3.5) have format drift issues
+- **Only use if**: You need to save VRAM for GUI/other tasks AND accept <65K context limit
 
-**⚠️ WARNING: Qwopus3.5 Series is a TRAP for Long Context**
+**⚠️ CRITICAL WARNING: Avoid Qwopus3.5 Series for Long Context**
 
-Models like `QuantTrio/Qwopus3.5-27B-v3-AWQ` are SFT-distilled from Claude 4.6 Opus, which:
+Models like `QuantTrio/Qwopus3.5-27B-v3-AWQ` are SFT-distilled from Claude 4.6 Opus:
 - **Shifted tool calling format**: From `qwen3_xml` → `hermes` (JSON-based)
 - **Appears stable initially**: Works fine for first ~65K tokens
 - **Fails in long context**: After 65K+ tokens, output **mixes XML and JSON formats**
@@ -168,7 +173,7 @@ Models like `QuantTrio/Qwopus3.5-27B-v3-AWQ` are SFT-distilled from Claude 4.6 O
 
 **Why this happens**: SFT (Supervised Fine-Tuning) changes the model's output distribution to match Claude's Hermes format, but doesn't fully align the underlying token probabilities. In long contexts (>65K tokens), the model drifts between its original Qwen XML format and the SFT'd JSON format.
 
-**Recommendation**: For long-context agentic work (>65K tokens), use official `Qwen/Qwen3.5-27B-FP8` with custom Jinja template instead of SFT-distilled variants.
+**Recommendation**: For long-context agentic work (>65K tokens), use official `Qwen/Qwen3.5-27B-FP8` with custom Jinja template. Only consider AutoRound (INT4) if you must save VRAM and accept stability tradeoffs.
 
 ---
 
