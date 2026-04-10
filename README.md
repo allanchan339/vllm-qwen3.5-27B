@@ -8,7 +8,7 @@
 
 The configuration was validated through a comprehensive stability test documented in the [Knowledge Platform README](https://github.com/allanchan339/qwen_own_project/blob/main/README.md):
 
-- **Test Duration**: 1h 9m continuous agentic session
+- **Test Duration**: 1h 9m continuous agentic session (without delegation of sub-agent)
 - **Token Usage**: 138.2k tokens
 - **Workload**: Full-stack application development (FastAPI backend + React frontend)
 - **Tool Calling**: Stable throughout session with XML parser
@@ -210,20 +210,29 @@ Models like `QuantTrio/Qwopus3.5-27B-v3-AWQ` are SFT-distilled from Claude 4.6 O
 
 ### Problem 5: Tool Call Parser Selection (`qwen3_xml` vs `qwen3_coder`)
 
+**⚠️ Deviation from Official Recommendation**
+
+The [official Qwen3.5-27B-FP8 README](https://huggingface.co/Qwen/Qwen3.5-27B-FP8) recommends `--tool-call-parser qwen3_coder`. However, our testing shows `qwen3_xml` is significantly more stable for long-context agentic work.
+
 **Recommendation**: Use `--tool-call-parser qwen3_xml` (NOT `qwen3_coder`)
 
-#### Why `qwen3_xml` is More Stable
+#### Why `qwen3_xml` is More Stable (vLLM Source Code Analysis)
 
 **1. Robust XML Parsing vs Fragile Regex**
-- **`qwen3_coder`**: Uses regex-based string extraction (`r"
+- **`qwen3_coder`**: Uses regex-based string extraction that breaks on special characters
+- **`qwen3_xml`**: Uses Python's robust C-based `xml.parsers.expat` engine for native XML streaming
 
-### Environment Variables
+**2. Special Character Handling**
+- **`qwen3_coder`**: Code with angle brackets (`if (a < b)`) breaks regex patterns
+- **`qwen3_xml`**: Auto-sanitizes special chars (`<`, `>`, `&`, quotes) before parsing
 
-```bash
-# CUDA PATH SETTINGS
-export CUDA_HOME=/usr
-export PATH=$CUDA_HOME/bin:$PATH
-export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
+**3. Complex JSON Support**
+- **`qwen3_coder`**: Attempts to parse nested JSON during streaming → corruption
+- **`qwen3_xml`**: Deferred parsing - waits for full parameter block before `json.loads`
+
+**4. Auto-Healing Malformed XML**
+- **`qwen3_coder`**: Fails on truncated output or missing closing tags
+- **`qwen3_xml`**: Auto-injects missing `
 
 # Safe, Speed-Focused Env Vars
 export CUDA_DEVICE_ORDER=PCI_BUS_ID
