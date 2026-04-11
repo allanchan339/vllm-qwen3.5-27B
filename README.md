@@ -127,7 +127,7 @@ uv pip install -U transformers  # Upgrade to 5.5+
 
 ---
 
-### Problem 2: Mixed GPU Precision Drift (IMPORTANT for Mixed GPU)
+### Problem 3: Mixed GPU Precision Drift (IMPORTANT for Mixed GPU)
 
 **The Issue**: Tensor Parallelism (TP mode) splits matrix multiplication across GPUs. Different compute capabilities (SM80 vs SM89) use different FP8 implementations.
 
@@ -156,7 +156,7 @@ export NCCL_ALGO=Ring        # Stable algorithm
 
 ---
 
-### Problem 3: Quantization Tradeoffs
+### Problem 4: Quantization Tradeoffs
 
 **FP8 Quantization (RECOMMENDED)**:
 - **Pros**: Near-lossless accuracy vs FP16/BF16, native support on RTX 4090
@@ -191,7 +191,7 @@ Models like `QuantTrio/Qwopus3.5-27B-v3-AWQ` are SFT-distilled from Claude 4.6 O
 
 ---
 
-### Problem 4: Context Length vs VRAM
+### Problem 5: Context Length vs VRAM
 
 **VRAM Breakdown (48GB Total)**:
 
@@ -208,7 +208,7 @@ Models like `QuantTrio/Qwopus3.5-27B-v3-AWQ` are SFT-distilled from Claude 4.6 O
 
 ---
 
-### Problem 5: Tool Call Parser Selection (`qwen3_xml` vs `qwen3_coder`)
+### Problem 6: Tool Call Parser Selection (`qwen3_xml` vs `qwen3_coder`)
 
 **⚠️ Deviation from Official Recommendation**
 
@@ -232,9 +232,14 @@ The [official Qwen3.5-27B-FP8 README](https://huggingface.co/Qwen/Qwen3.5-27B-FP
 
 **4. Auto-Healing Malformed XML**
 - **`qwen3_coder`**: Fails on truncated output or missing closing tags
-- **`qwen3_xml`**: Auto-injects missing `
+- **`qwen3_xml`**: Auto-injects missing closing tags for robustness
 
-# Safe, Speed-Focused Env Vars
+---
+
+### Problem 7: Environment Variable Configuration
+
+#### Safe, Speed-Focused Env Vars
+```bash
 export CUDA_DEVICE_ORDER=PCI_BUS_ID
 export CUDA_VISIBLE_DEVICES=0,1
 export NCCL_CUMEM_ENABLE=0
