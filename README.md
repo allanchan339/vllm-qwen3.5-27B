@@ -1,5 +1,7 @@
 # Running Qwen3.5-27B on Mixed GPU Setup: From Pain to Success
 
+**📖 Read the full story**: [Reddit Deep Dive - Qwen 3.5 Tool Calling Issues: Why It Breaks & How I Fixed It](https://www.reddit.com/r/Vllm/comments/1skks8n/qwen_35_27b35ba3b_tool_calling_issues_why_it/)
+
 ## Success Story: Knowledge Platform
 
 **This configuration now powers a production knowledge graph extraction system** - see [qwen_own_project](https://github.com/allanchan339/qwen_own_project) for the complete working example.
@@ -359,8 +361,9 @@ Edit `bench_vllm.sh` to change:
 
 ## References
 
+- **[Reddit: r/Vllm - Qwen 3.5 Tool Calling Issues Deep Dive](https://www.reddit.com/r/Vllm/comments/1skks8n/qwen_35_27b35ba3b_tool_calling_issues_why_it/)** - Detailed discussion of tool calling fixes, Jinja template issues, and mixed GPU precision drift
 - [vLLM Issue #34437](https://github.com/vllm-project/vllm/issues/34437) - Mixed GPU TP mode instability
-- [Reddit Discussion](https://www.reddit.com/r/LocalLLaMA/comments/1sdhvc5/qwen_35_tool_calling_fixes_for_agentic_use_whats/) - Tool calling fixes
+- [Reddit: r/LocalLLaMA - Original Tool Calling Fixes Thread](https://www.reddit.com/r/LocalLLaMA/comments/1sdhvc5/qwen_35_tool_calling_fixes_for_agentic_use_whats/) - Initial discussion
 - [Qwen3 Issue #1831](https://github.com/QwenLM/Qwen3/issues/1831) - Official model issues
 - [NVIDIA Forums](https://forums.developer.nvidia.com/t/success-with-quanttrio-qwen3-5-27b-claude-4-6-opus-reasoning-distilled-v2-awq/365416) - AWQ success reports (note: long-context issues not discussed)
 
