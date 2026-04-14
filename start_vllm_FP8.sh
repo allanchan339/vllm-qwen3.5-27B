@@ -53,11 +53,11 @@ vllm serve $MODEL_NAME \
   --trust-remote-code \
   --tensor-parallel-size 2 \
   --max-model-len 219520 \
-  --gpu-memory-utilization 0.90 \
+  --gpu-memory-utilization 0.91 \
   --enable-auto-tool-choice \
   --enable-chunked-prefill \
   --enable-prefix-caching \
-  --max-num-batched-tokens 4096 \
+  --max-num-batched-tokens 12288 \
   --max-num-seqs 4 \
   --kv-cache-dtype fp8 \
   --tool-call-parser qwen3_xml \
