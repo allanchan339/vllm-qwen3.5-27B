@@ -38,7 +38,7 @@ export VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=1
 export VLLM_TEST_FORCE_FP8_MARLIN=1
 # Start vLLM with reduced swap space
 vllm serve $MODEL_NAME \
-  --served-model-name vllm/Qwen3.5-27B \
+  --served-model-name Qwen3.5-27B \
   --chat-template qwen3.5-enhanced.jinja \
   --dtype bfloat16 \
   --trust-remote-code \

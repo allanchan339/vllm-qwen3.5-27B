@@ -36,7 +36,7 @@ export VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=1
 export MODEL_NAME="mconcat/Qwopus3.5-27B-v3-FP8-Dynamic"
 # Start vLLM with reduced swap space
 vllm serve $MODEL_NAME \
-  --served-model-name vllm/Qwen3.5-27B \
+  --served-model-name Qwen3.5-27B \
   --trust-remote-code \
   --pipeline-parallel-size 2 \
   --max-model-len 100000 \

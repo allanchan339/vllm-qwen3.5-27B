@@ -28,7 +28,7 @@ export VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=1
 
 # Start vLLM with reduced swap space and forced eager mode
 vllm serve $MODEL_NAME \
-  --served-model-name vllm/Qwen3.5-27B \
+  --served-model-name Qwen3.5-27B \
   --attention-backend FLASHINFER \
   --trust-remote-code \
   --max-model-len 32768 \

@@ -263,7 +263,7 @@ export VLLM_TEST_FORCE_FP8_MARLIN=1  # Force 4090 to use W8A16 (match 3090, avoi
 
 ```bash
 vllm serve Qwen/Qwen3.5-27B-FP8 \
-  --served-model-name vllm/Qwen3.5-27B \
+  --served-model-name Qwen3.5-27B \
   --chat-template qwen3.5-enhanced.jinja \
   --attention-backend FLASHINFER \
   --trust-remote-code \

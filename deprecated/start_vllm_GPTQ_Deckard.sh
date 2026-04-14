@@ -32,7 +32,7 @@ export MODEL_NAME="raydelossantos/Qwen3.5-40B-Claude-4.6-Opus-Deckard-Heretic-GP
 export VLLM_USE_FLASHINFER_SAMPLER=1
 # Start vLLM with reduced swap space
 vllm serve $MODEL_NAME \
-  --served-model-name vllm/Qwen3.5-27B \
+  --served-model-name Qwen3.5-27B \
   --attention-backend FLASHINFER \
   --trust-remote-code \
   --pipeline-parallel-size 2 \
@@ -50,4 +50,3 @@ vllm serve $MODEL_NAME \
   --host 0.0.0.0 \
   --port 8000 \
   --language-model-only 
-
