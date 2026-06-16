@@ -130,9 +130,10 @@
 {%- for message in messages -%}
     {%- set content = render_content(message.content, true)|trim -%}
     {%- if message.role == "system" -%}
-        {%- if not loop.first -%}
-            {{- raise_exception('System message must be at the beginning.') -}}
-        {%- endif -%}
+        {%- if not loop.first %}
+            {%- set sysc = render_content(message.content, false, true)|trim -%}
+            {{- '<|im_start|>system\n' ~ sysc ~ '<|im_end|>\n' -}}
+        {%- endif %}
     {%- elif message.role == "user" -%}
         {{- '<|im_start|>user\n' ~ content ~ '<|im_end|>\n' -}}
     {%- elif message.role == "assistant" -%}
