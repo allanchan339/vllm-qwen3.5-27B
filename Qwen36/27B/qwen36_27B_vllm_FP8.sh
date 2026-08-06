@@ -34,9 +34,9 @@ export VLLM_TEST_FORCE_FP8_MARLIN=1
 export VLLM_SLEEP_WHEN_IDLE=1
 # Start vLLM with reduced swap space
 vllm serve $MODEL_NAME \
-  --served-model-name Qwen3.5-27B \
-  --chat-template qwen3.5-enhanced.jinja \
-  --default-chat-template-kwargs '{"preserve_thinking": false}' \
+  --served-model-name Qwen3.6-27B \
+  --chat-template qwen3.6-enhanced.jinja \
+  --default-chat-template-kwargs '{"preserve_thinking": true}' \
   --attention-backend FLASHINFER \
   --trust-remote-code \
   --tensor-parallel-size 2 \

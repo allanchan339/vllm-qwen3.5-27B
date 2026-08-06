@@ -34,7 +34,7 @@ export VLLM_TEST_FORCE_FP8_MARLIN=1
 export VLLM_SLEEP_WHEN_IDLE=1
 # Start vLLM with reduced swap space
 vllm serve $MODEL_NAME \
-  --served-model-name Qwen3.5-27B \
+  --served-model-name Qwen3.6-27B \
   --chat-template qwen3.6-enhanced.jinja \
   --default-chat-template-kwargs '{"preserve_thinking": true}' \
   --attention-backend FLASHINFER \
@@ -48,7 +48,7 @@ vllm serve $MODEL_NAME \
   --max-num-batched-tokens 12288 \
   --max-num-seqs 4 \
   --kv-cache-dtype fp8 \
-  --tool-call-parser qwen3_coder \
+  --tool-call-parser qwen3_xml \
   --reasoning-parser qwen3 \
   --no-use-tqdm-on-load \
   --host 0.0.0.0 \
